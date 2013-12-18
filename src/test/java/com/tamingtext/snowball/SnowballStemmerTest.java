@@ -36,7 +36,7 @@ public class SnowballStemmerTest extends TamingTextTestJ4 {
     for (int i = 0; i < test.length; i++) {
       english.setCurrent(test[i]);//<co id="stemmer.co.set"/>
       english.stem();//<co id="stemmer.co.stem"/>
-      System.out.println("English: " + english.getCurrent());
+      System.out.printf("English: %s -%s %n", test[i], english.getCurrent());
       assertTrue(english.getCurrent() + " is not equal to " + gold[i], english.getCurrent().equals(gold[i]) == true);
     }
     /*
