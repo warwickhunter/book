@@ -54,12 +54,28 @@ public class ChunkParserTest extends TamingTextTestJ4 {
     Parser parser = new ChunkParser(chunker, tagger);
     Parse[] results = ParserTool.parseLine("The Minnesota Twins , " +
             "the 1991 World Series Champions , are currently in third place .",
-            parser, 1);
+            parser, 3);
+    
+    for (Parse parse : results) {
+        show(parse, 0);
+        
+    }
+    
     Parse p = results[0];
     Parse[] chunks = p.getChildren();
     assertTrue(chunks.length == 9);
     assertTrue(chunks[0].getType().equals("NP"));
     assertTrue(chunks[0].getHead().toString().equals("Twins"));
     //<end id="openChunkParse"/>
+  }
+  
+  private void show(Parse parse, int level) {
+    for (int i = 0; i < level; ++i) {
+        System.out.printf("  ");
+    }
+    System.out.printf("%s/%s%n", parse.getHead().toString(), parse.getType());
+    for (Parse chunk : parse.getChildren()) {
+        show(chunk, ++level);
+    }      
   }
 }

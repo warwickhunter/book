@@ -40,7 +40,9 @@ public class POSTaggerTest extends TamingTextTestJ4 {
   @Test
   public void test() throws IOException {
 
-    File posModelFile = new File(getModelDir(), "en-pos-maxent.bin"); 
+    //<start id="opennlpPOS"/>
+    File posModelFile = new File( //<co id="opennlpPOS.co.tagger"/>
+        getModelDir(), "en-pos-maxent.bin"); 
     FileInputStream posModelStream = new FileInputStream(posModelFile);
     POSModel model = new POSModel(posModelStream);
     
@@ -49,8 +51,17 @@ public class POSTaggerTest extends TamingTextTestJ4 {
         "The quick, red fox jumped over the lazy, brown dogs.");
     String[] result = tagger.tag(words);//<co id="opennlpPOS.co.dotag"/>
     for (int i=0 ; i < words.length; i++) {
-        System.err.print(words[i] + "/" + result[i] + " ");
+      System.err.print(words[i] + "/" + result[i] + " ");
     }
     System.err.println("\n");
+    /*
+<calloutlist>
+<callout arearefs="opennlpPOS.co.tagger"><para>Give the path to the POS Model</para></callout>
+<callout arearefs="opennlpPOS.co.tokenize"><para>Tokenize the sentence into words</para></callout>
+<callout arearefs="opennlpPOS.co.dotag"><para>Pass in a tokenized sentence to be tagged.</para></callout>
+</calloutlist>
+    */
+
+    //<end id="opennlpPOS"/>
   }
 }

@@ -46,18 +46,23 @@ import org.xml.sax.ContentHandler;
  *
  **/
 public class TikaTest extends TamingTextTestJ4 {
+  
+  private static final int MAX_FILE_SIZE = 100 * 1024 * 1024;
+    
   @Test
   public void testTika() throws Exception {
     //<start id="tika"/>
-    InputStream input = new FileInputStream(
-            new File("src/test/resources/pdfBox-sample.pdf"));//<co id="tika.is"/>
-    ContentHandler textHandler = new BodyContentHandler();//<co id="tika.handler"/>
+    InputStream input = new FileInputStream(new File("src/test/resources/avalon.pdf")); // pdfBox-sample.pdf"));//<co id="tika.is"/>
+    ContentHandler textHandler = new BodyContentHandler(MAX_FILE_SIZE);//<co id="tika.handler"/>
     Metadata metadata = new Metadata();//<co id="tika.metadata"/>
     Parser parser = new AutoDetectParser();//<co id="tika.parser"/>
     ParseContext context = new ParseContext();
     parser.parse(input, textHandler, metadata, context);//<co id="tika.parse"/>
     System.out.println("Title: " + metadata.get(Metadata.TITLE));//<co id="tika.title"/>
-    System.out.println("Body: " + textHandler.toString());//<co id="tika.body"/>
+    for (String name : metadata.names()) {
+        System.out.printf("%s=%s %n", name, metadata.get(name));
+    }
+    //System.out.println("Body: " + textHandler.toString());//<co id="tika.body"/>
     /*
 <calloutlist>
     <callout arearefs="tika.is"><para>Create the <classname>InputStream</classname> to read in the content</para></callout>
@@ -84,7 +89,7 @@ public class TikaTest extends TamingTextTestJ4 {
     LinkContentHandler links = new LinkContentHandler();//<co id="html.link.co"/>
     ContentHandler handler = new TeeContentHandler(links, text);//<co id="html.merge"/>
     Metadata metadata = new Metadata();//<co id="html.store"/>
-    Parser parser = new HtmlParser();//<co id="html.parser"/>
+    Parser parser = new AutoDetectParser(); // HtmlParser();//<co id="html.parser"/>
     ParseContext context = new ParseContext();
     parser.parse(input, handler, metadata, context);//<co id="html.parse"/>
     System.out.println("Title: " + metadata.get(Metadata.TITLE));
