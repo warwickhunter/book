@@ -19,26 +19,26 @@
 
 package com.tamingtext.tika;
 
-import com.tamingtext.TamingTextTestJ4;
-import junit.framework.TestCase;
-
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.html.HtmlParser;
-import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.LinkContentHandler;
 import org.apache.tika.sax.TeeContentHandler;
-import org.apache.tika.sax.ToHTMLContentHandler;
-import org.junit.*;
+import org.junit.Test;
+import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import com.tamingtext.TamingTextTestJ4;
 
 
 /**
@@ -51,14 +51,15 @@ public class TikaTest extends TamingTextTestJ4 {
     
   @Test
   public void testTika() throws Exception {
+    boolean useMyHandler = true;
+      
     //<start id="tika"/>
     InputStream input = new FileInputStream(new File("src/test/resources/avalon.pdf")); // pdfBox-sample.pdf"));//<co id="tika.is"/>
-    ContentHandler textHandler = new BodyContentHandler(MAX_FILE_SIZE);//<co id="tika.handler"/>
+    ContentHandler textHandler = (useMyHandler) ? new MyHandler() : new BodyContentHandler(MAX_FILE_SIZE);//<co id="tika.handler"/>
     Metadata metadata = new Metadata();//<co id="tika.metadata"/>
     Parser parser = new AutoDetectParser();//<co id="tika.parser"/>
     ParseContext context = new ParseContext();
     parser.parse(input, textHandler, metadata, context);//<co id="tika.parse"/>
-    System.out.println("Title: " + metadata.get(Metadata.TITLE));//<co id="tika.title"/>
     for (String name : metadata.names()) {
         System.out.printf("%s=%s %n", name, metadata.get(name));
     }
@@ -78,6 +79,44 @@ public class TikaTest extends TamingTextTestJ4 {
     //<end id="tika"/>
   }
 
+  private static class MyHandler extends DefaultHandler {
+
+    private static final int MAX_ELEMENTS = 100;
+    private int m_elementCounter = 0;
+    
+    @Override
+    public void startElement(String namespace, String localName, String qName, Attributes atts) throws SAXException {
+        super.startElement(namespace, localName, qName, atts);
+        if (m_elementCounter > MAX_ELEMENTS) {
+            return;
+        }
+        System.out.printf("<%s", qName);
+        for (int i = 0; i < atts.getLength(); ++i) {
+            System.out.printf(" %s=\"%s\"", atts.getQName(i), atts.getValue(i));
+        }
+        System.out.println(">");
+        ++m_elementCounter;
+    }
+
+    @Override
+    public void characters(char[] ch, int offset, int length) throws SAXException {
+        super.characters(ch, offset, length);
+        if (m_elementCounter > MAX_ELEMENTS) {
+            return;
+        }
+        System.out.printf("%s", new String(ch, offset, length));
+    }
+
+    @Override
+    public void endElement(String namespace, String localName, String qName) throws SAXException {
+        if (m_elementCounter > MAX_ELEMENTS) {
+            return;
+        }
+        System.out.printf("</%s>%n", qName);
+    }
+
+  }
+  
   @Test
   public void testHtml() throws Exception {
     String html = "<html><head><title>The Big Brown Shoe</title></head><body><p>The best pizza place " +
